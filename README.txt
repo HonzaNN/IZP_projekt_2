@@ -15,7 +15,7 @@ Bude to po vas chtit prihlasovaci jmeno a heslo
 Jsou stejna jako udaje do WISu tzn. xprijmeni0 a vase heslo
 
 
-Nahra obsahu repozitare - Prvni spusteni
+Nahrani obsahu repozitare - Prvni spusteni
 
 git pull origin master
 
