@@ -17,8 +17,8 @@ typedef struct {
 }TmnozinaRelaci
 
 typedef struct {
-    Tstruktura univerzum;
-    Tstruktura *mnoziny;
+    Tmnozina univerzum;
+    Tmnozinamnozina *mnoziny;
     TmnozinaRelaci *relace;
     int pocet_mnozin, pocet_relaci;
 }Tdata
