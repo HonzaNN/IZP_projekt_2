@@ -5,6 +5,7 @@ git config --global user.name "........"
 git config --global user.email .............
 git remote add origin https://git.fit.vutbr.cz/xnovak3i/IZP_projekt_2.git
 
+
 Pridani souboru do repozitare
 
 git add NAZEV_SOUBORU.txt
@@ -13,6 +14,14 @@ git push -u origin master
 Bude to po vas chtit prihlasovaci jmeno a heslo
 Jsou stejna jako udaje do WISu tzn. xprijmeni0 a vase heslo
 
-aktualizace obsahu souboru
+
+Nahra obsahu repozitare - Prvni spusteni
 
 git pull origin master
+
+
+Aktualizace obsahu souborů - Nutné provádět pravidelně před začátkem programování a před nahráním do repozitáře
+
+git fetch origin
+do souboru se vam nahraji nove casti, ktere pridali jini lide
+Následně otevřete aktualizované soubory a upravíte si je
