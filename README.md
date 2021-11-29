@@ -1,1 +1,4 @@
-Tady zatim nic neni.
+git init
+git config --global user.name "........"
+git config --global user.email .............
+
