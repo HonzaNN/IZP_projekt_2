@@ -36,7 +36,7 @@ void tisk_mnoziny(char a[6][31], int pocet_prvku) {
     printf("\n");
 }
 
-void prazdna_mnozina(Tmnozina a) {
+/*void prazdna_mnozina(Tmnozina a) {
     if(a.pocet_prvku == 0) {
         printf("true\n");
     } else {
@@ -46,7 +46,7 @@ void prazdna_mnozina(Tmnozina a) {
 
 void pocet_prvku(Tmnozina a) {
     printf("%d\n", a.pocet_prvku);
-}
+}*/
 
 void doplnek(char a[6][31], char uni[6][31], int pocet_a, int pocet_uni) {
     int jeDoplnek = 1;
