@@ -101,9 +101,11 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
             {
                 if(a[0] == ' ')
                 {
+                    data->univerzum.pole[r][s] = '\0'; //kazde pole je ukonceno '\0'
                     r++;
                     s = 0;
                     data->univerzum.pocet_prvku = r;
+                    realloc_Mnozina(&(data->univerzum), r+1);
                     break;
                 }
                 data->univerzum.pole[r][s] = a[0];
