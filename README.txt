@@ -22,6 +22,10 @@ git pull origin master
 
 Aktualizace obsahu souborů - Nutné provádět pravidelně před začátkem programování a před nahráním do repozitáře
 
-git fetch origin
+git add NAZEV_SOUBORU_K_AKTUALIZACI.txt
+git commit -m "......."     Napr. "first commit", "prvni", "nahrani Honza 3"
+git pull origin master
+
 do souboru se vam nahraji nove casti, ktere pridali jini lide
 Následně otevřete aktualizované soubory a upravíte si je
+odstranite vse mezi "<<<<<<HEAD" a "======", takto je ozanacen stary kod ktery nekdo zmenil
