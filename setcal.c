@@ -32,7 +32,7 @@ typedef struct {
 
 int oteri_soubor(FILE *s, char *nazev)
 {
-    s = fopen (nazev, "r");
+    s = fopen(nazev, "r");
     if( s == NULL) return 0;
     return 1;
 }
@@ -69,10 +69,10 @@ int realloc_Mnozina(Tmnozina *a, int pocet)
 }
 
 /////Alokace pameti pro pismena mnozin
-int alloc_MnozinaPismena(Tmnozina *a)
+int alloc_MnozinaPismena(Tmnozina *a, int radek)
 {
-    a->pole[0] = (char*)malloc(sizeof(char));
-    if (a->pole == NULL) return 0;
+    a->pole[radek] = (char*)malloc(sizeof(char));
+    if (a->pole[radek] == NULL) return 0;
     return 1;
 }
 
@@ -83,35 +83,46 @@ int realloc_MnozinaPismena(Tmnozina *a, int pocet, int radek)
     return 1;
 }
 
-
+void nacteni_MozAUniverza();
 
 
 int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
 {
-    char *a, *nic;
+    char a, nic;
     int r = 0, s = 0; //pocitadla na radky sloupce
-    while((fgets(a,1,soub)) != NULL)
+    printf("%d\n", __LINE__);
+    while((a = fgetc(soub)) != EOF)
     {
-        fgets(nic,1,soub); //Po uvozovacim znaku U/C/R/S je mezera, timto ji preskocim
-        switch (a[0])
+        printf("%c\n", a);
+        printf("%d\n", __LINE__);
+        fgetc(soub);
+         //Po uvozovacim znaku U/C/R/S je mezera, timto ji preskocim
+        switch (a)
         {
         case 'U': //nactitanni jednotlivych slov univerza
-            (fgets(a,1,soub)); 
-            while (a[0] != '\n')
+            a = fgetc(soub);
+            printf("%d\n", __LINE__);
+            while (a != '\n')
             {
-                if(a[0] == ' ')
+                printf("%c\n", a);
+                printf("%d\n", __LINE__);
+                if(a == ' ')
                 {
                     data->univerzum.pole[r][s] = '\0'; //kazde pole je ukonceno '\0'
                     r++;
                     s = 0;
                     data->univerzum.pocet_prvku = r;
                     realloc_Mnozina(&(data->univerzum), r+1);
-                    break;
+                    alloc_MnozinaPismena(&(data->univerzum),r);
                 }
-                data->univerzum.pole[r][s] = a[0];
-                s++;
-                realloc_MnozinaPismena(&(data->univerzum), s+1, r); /****Pridat odladeni****/
-                (fgets(a,1,soub));
+                else 
+                {
+                    data->univerzum.pole[r][s] = a;
+                    s++;
+                    printf("%d\n", __LINE__);
+                    realloc_MnozinaPismena(&(data->univerzum), s+1, r); /****Pridat odladeni****/
+                }
+                a = fgetc(soub);
             }
             
             break;
@@ -131,24 +142,34 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
     return 0;
 }
 
+void tisk (Tdata a)
+{
+    printf("%d\n", __LINE__);
+    for(int i = 0; i < 8; printf("%s\n", a.univerzum.pole[i++])){}
+}
+
+
 int main (int argc, char *argv[])
 {
-    FILE *soubor;
+    FILE *soubor=fopen(argv[1], "r");
     Tdata data;
     Toperace *operace;
     int pocet_operaci;
-
-    oteri_soubor(soubor, argv[1]);    ///Ted se bude alokovat pamet jednotlivych dinamickych poli vsdy na 1 prvek
-    alloc_Operace(operace);             
+    
+    //oteri_soubor(soubor, argv[1]);  
+      ///Ted se bude alokovat pamet jednotlivych dinamickych poli vsdy na 1 prvek
+    alloc_Operace(operace);            
     alloc_Mnozina(&(data.univerzum));
-    alloc_MnozinaPismena(&(data.univerzum));   /****Pridat odladeni****/
-    for(int i=0; i<1000; i++)
+    alloc_MnozinaPismena(&(data.univerzum),0);  /****Pridat odladeni****/
+    nacti_Soubor(soubor,&data,operace);
+    tisk(data);
+    /*for(int i=0; i<1000; i++)
     {
         alloc_Mnozina(&(data.mnoziny[i]));
         alloc_MnozinaPismena(&(data.mnoziny[i]));
-    }        
+    }        */
     
 
-    fclose(soubor);
+    //fclose(soubor);
     return 0;
 }
