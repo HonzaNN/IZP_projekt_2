@@ -29,3 +29,6 @@ git pull origin master
 do souboru se vam nahraji nove casti, ktere pridali jini lide
 Následně otevřete aktualizované soubory a upravíte si je
 odstranite vse mezi "<<<<<<HEAD" a "======", takto je ozanacen stary kod ktery nekdo zmenil
+Nasledne
+
+git push -u origin master
