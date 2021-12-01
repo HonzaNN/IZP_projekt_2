@@ -83,13 +83,49 @@ int realloc_MnozinaPismena(Tmnozina *a, int pocet, int radek)
     return 1;
 }
 
-void nacteni_Moz(FILE *soub, Tdata *data);
+
+
+void nacteni_Moz(FILE *soub, Tdata *data, int radek)
+{
+    char a;
+    int r = 0, s = 0; //pocitadla na radky sloupce
+    a = fgetc(soub);
+    while (a != '\n')
+    {
+        printf("%c\n", a);
+        if(a == ' ')
+        {
+            data->mnoziny[radek].pole[r][s] = '\0'; //kazde pole je ukonceno '\0'
+            r++;
+            s = 0;
+            data->mnoziny[radek].pocet_prvku = r;
+            realloc_Mnozina(&(data->mnoziny[radek]), r+1);
+            alloc_MnozinaPismena(&(data->mnoziny[radek]),r);
+        }
+        else 
+        {
+            data->mnoziny[radek].pole[r][s] = a;
+            s++;
+            realloc_MnozinaPismena(&(data->mnoziny[radek]), s+1, r); /****Pridat odladeni****/
+        }
+        a = fgetc(soub);
+    }
+    data->mnoziny[radek].pole[r][s] = '\0'; //kazde pole je ukonceno '\0'
+    r++;
+    s = 0;
+    data->mnoziny[radek].pocet_prvku = r;
+    realloc_Mnozina(&(data->mnoziny[radek]), r+1);
+    alloc_MnozinaPismena(&(data->mnoziny[radek]),r);
+    data->mnoziny[radek].pole[r] = NULL;
+}
+
 
 void nacteni_Uni(FILE *soub, Tdata *data)
 {
     char a;
     int r = 0, s = 0; //pocitadla na radky sloupce
     a = fgetc(soub);
+    
     while (a != '\n')
     {
         printf("%c\n", a);
@@ -124,7 +160,7 @@ void nacteni_Uni(FILE *soub, Tdata *data)
 int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
 {
     char a;
-    int r = 0, s = 0; //pocitadla na radky sloupce
+    int r = 0; //pocitadla na radky sloupce
     while((a = fgetc(soub)) != EOF)
     {
         printf("%c\n", a);
@@ -133,9 +169,14 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
         {
         case 'U': //nactitanni jednotlivych slov univerza
             nacteni_Uni(soub, data);
+            r++;
             break;
         
         case 'S':  //nactitanni jednotlivych slov mnozin
+            alloc_Mnozina(&(data->mnoziny[r]));
+            alloc_MnozinaPismena(&(data->mnoziny[r]),0);
+            nacteni_Moz(soub,data,r);
+            data->pocet_mnozin = r++;
             break;
 
         case 'R': //nactitanni jednotlivych relaci
@@ -150,9 +191,9 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
     return 0;
 }
 
-void tisk (Tdata a)
+void tisk (Tmnozina a)
 {
-    for(int i = 0; i <a.univerzum.pocet_prvku; printf("%s\n", a.univerzum.pole[i++])){}
+    for(int i = 0; i <a.pocet_prvku; printf("%s ", a.pole[i++])){}
 }
 
 
@@ -160,6 +201,7 @@ int main (int argc, char *argv[])
 {
     FILE *soubor=fopen(argv[1], "r");
     Tdata data;
+    data.pocet_mnozin = data.pocet_relaci = 0;
     Toperace *operace;
     int pocet_operaci;
     
@@ -169,12 +211,15 @@ int main (int argc, char *argv[])
     alloc_Mnozina(&(data.univerzum));
     alloc_MnozinaPismena(&(data.univerzum),0);  /****Pridat odladeni****/
     nacti_Soubor(soubor,&data,operace);
-    tisk(data);
-    /*for(int i=0; i<1000; i++)
+    printf("\n");
+    tisk(data.univerzum);
+    printf("\n");
+    for (int i = 0; i < data.pocet_mnozin+3; i++)
     {
-        alloc_Mnozina(&(data.mnoziny[i]));
-        alloc_MnozinaPismena(&(data.mnoziny[i]));
-    }        */
+        tisk(data.mnoziny[i]);
+        printf("\n");
+    }
+    
     
 
     //fclose(soubor);
