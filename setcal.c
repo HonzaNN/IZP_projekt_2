@@ -83,48 +83,56 @@ int realloc_MnozinaPismena(Tmnozina *a, int pocet, int radek)
     return 1;
 }
 
-void nacteni_MozAUniverza();
+void nacteni_Moz(FILE *soub, Tdata *data);
+
+void nacteni_Uni(FILE *soub, Tdata *data)
+{
+    char a;
+    int r = 0, s = 0; //pocitadla na radky sloupce
+    a = fgetc(soub);
+    while (a != '\n')
+    {
+        printf("%c\n", a);
+        if(a == ' ')
+        {
+            data->univerzum.pole[r][s] = '\0'; //kazde pole je ukonceno '\0'
+            r++;
+            s = 0;
+            data->univerzum.pocet_prvku = r;
+            realloc_Mnozina(&(data->univerzum), r+1);
+            alloc_MnozinaPismena(&(data->univerzum),r);
+        }
+        else 
+        {
+            data->univerzum.pole[r][s] = a;
+            s++;
+            realloc_MnozinaPismena(&(data->univerzum), s+1, r); /****Pridat odladeni****/
+        }
+        a = fgetc(soub);
+    }
+    data->univerzum.pole[r][s] = '\0'; //kazde pole je ukonceno '\0'
+    r++;
+    s = 0;
+    data->univerzum.pocet_prvku = r;
+    realloc_Mnozina(&(data->univerzum), r+1);
+    alloc_MnozinaPismena(&(data->univerzum),r);
+    data->univerzum.pole[r] = NULL;
+        
+}
 
 
 int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
 {
-    char a, nic;
+    char a;
     int r = 0, s = 0; //pocitadla na radky sloupce
-    printf("%d\n", __LINE__);
     while((a = fgetc(soub)) != EOF)
     {
         printf("%c\n", a);
-        printf("%d\n", __LINE__);
-        fgetc(soub);
-         //Po uvozovacim znaku U/C/R/S je mezera, timto ji preskocim
+        fgetc(soub);        //Po uvozovacim znaku U/C/R/S je mezera, timto ji preskocim
         switch (a)
         {
         case 'U': //nactitanni jednotlivych slov univerza
-            a = fgetc(soub);
-            printf("%d\n", __LINE__);
-            while (a != '\n')
-            {
-                printf("%c\n", a);
-                printf("%d\n", __LINE__);
-                if(a == ' ')
-                {
-                    data->univerzum.pole[r][s] = '\0'; //kazde pole je ukonceno '\0'
-                    r++;
-                    s = 0;
-                    data->univerzum.pocet_prvku = r;
-                    realloc_Mnozina(&(data->univerzum), r+1);
-                    alloc_MnozinaPismena(&(data->univerzum),r);
-                }
-                else 
-                {
-                    data->univerzum.pole[r][s] = a;
-                    s++;
-                    printf("%d\n", __LINE__);
-                    realloc_MnozinaPismena(&(data->univerzum), s+1, r); /****Pridat odladeni****/
-                }
-                a = fgetc(soub);
-            }
-            
+            nacteni_Uni(soub, data);
             break;
         
         case 'S':  //nactitanni jednotlivych slov mnozin
@@ -144,8 +152,7 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
 
 void tisk (Tdata a)
 {
-    printf("%d\n", __LINE__);
-    for(int i = 0; i < 8; printf("%s\n", a.univerzum.pole[i++])){}
+    for(int i = 0; i <a.univerzum.pocet_prvku; printf("%s\n", a.univerzum.pole[i++])){}
 }
 
 
