@@ -3,7 +3,7 @@
 #include <string.h>
 
 typedef struct {
-     char **pole;
+    char **pole;
     int pocet_prvku;
 }Tmnozina;
 
@@ -102,7 +102,7 @@ void nacteni_Moz(FILE *soub, Tdata *data, int radek)
             realloc_Mnozina(&(data->mnoziny[radek]), r+1);
             alloc_MnozinaPismena(&(data->mnoziny[radek]),r);
         }
-        else 
+        else
         {
             data->mnoziny[radek].pole[r][s] = a;
             s++;
@@ -125,7 +125,7 @@ void nacteni_Uni(FILE *soub, Tdata *data)
     char a;
     int r = 0, s = 0; //pocitadla na radky sloupce
     a = fgetc(soub);
-    
+
     while (a != '\n')
     {
         printf("%c\n", a);
@@ -138,7 +138,7 @@ void nacteni_Uni(FILE *soub, Tdata *data)
             realloc_Mnozina(&(data->univerzum), r+1);
             alloc_MnozinaPismena(&(data->univerzum),r);
         }
-        else 
+        else
         {
             data->univerzum.pole[r][s] = a;
             s++;
@@ -153,7 +153,7 @@ void nacteni_Uni(FILE *soub, Tdata *data)
     realloc_Mnozina(&(data->univerzum), r+1);
     alloc_MnozinaPismena(&(data->univerzum),r);
     data->univerzum.pole[r] = NULL;
-        
+
 }
 
 
@@ -167,25 +167,25 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
         fgetc(soub);        //Po uvozovacim znaku U/C/R/S je mezera, timto ji preskocim
         switch (a)
         {
-        case 'U': //nactitanni jednotlivych slov univerza
-            nacteni_Uni(soub, data);
-            r++;
-            break;
-        
-        case 'S':  //nactitanni jednotlivych slov mnozin
-            alloc_Mnozina(&(data->mnoziny[r]));
-            alloc_MnozinaPismena(&(data->mnoziny[r]),0);
-            nacteni_Moz(soub,data,r);
-            data->pocet_mnozin = r++;
-            break;
+            case 'U': //nactitanni jednotlivych slov univerza
+                nacteni_Uni(soub, data);
+                r++;
+                break;
 
-        case 'R': //nactitanni jednotlivych relaci
-            break;
+            case 'S':  //nactitanni jednotlivych slov mnozin
+                alloc_Mnozina(&(data->mnoziny[r]));
+                alloc_MnozinaPismena(&(data->mnoziny[r]),0);
+                nacteni_Moz(soub,data,r);
+                data->pocet_mnozin = r++;
+                break;
 
-        case 'C': //nactitanni jednotlivych operaci
-            break;
-        default:
-            break;
+            case 'R': //nactitanni jednotlivych relaci
+                break;
+
+            case 'C': //nactitanni jednotlivych operaci
+                break;
+            default:
+                break;
         }
     }
     return 0;
@@ -196,6 +196,148 @@ void tisk (Tmnozina a)
     for(int i = 0; i <a.pocet_prvku; printf("%s ", a.pole[i++])){}
 }
 
+void prazdna_mnozina(Tdata *data, int radek) {
+    if(data->mnoziny[radek-2].pocet_prvku == 0) {
+        printf("true\n");
+    } else {
+        printf("false\n");
+    }
+}
+
+void pocet_prvku(Tdata *data, int radek) {
+    printf("%d\n", data->mnoziny[radek-2].pocet_prvku);
+}
+void doplnek(Tdata *data, int radek) {
+    int jeDoplnek = 1;
+
+    printf("S");
+
+    for (int i = 0; i < data->univerzum.pocet_prvku; i++) {
+        jeDoplnek = 1;
+        for (int j = 0; j < data->mnoziny[radek-2].pocet_prvku; j++) {
+            if(!strcmp(data->univerzum.pole[i], data->mnoziny[radek-2].pole[j])) {
+                jeDoplnek = 0;
+                break;
+            }
+        }
+        if(jeDoplnek) {
+            printf(" %s", data->univerzum.pole[i]);
+        }
+    }
+    printf("\n");
+}
+
+void sjednoceni(Tdata *data, int radek1, int radek2) {
+    printf("S");
+
+    for (int i = 0; i < data->mnoziny[radek1-2].pocet_prvku; i++) {
+        printf(" %s", data->mnoziny[radek1-2].pole[i]);
+    }
+
+    int jeDoplnek = 1;
+
+    for (int i = 0; i < data->mnoziny[radek2-2].pocet_prvku; i++) {
+        jeDoplnek = 1;
+        for (int j = 0; j < data->mnoziny[radek1-2].pocet_prvku; j++) {
+            if(!strcmp(data->mnoziny[radek2-2].pole[i], data->mnoziny[radek1-2].pole[j])) {
+                jeDoplnek = 0;
+                break;
+            }
+        }
+        if(jeDoplnek) {
+            printf(" %s", data->mnoziny[radek2-2].pole[i]);
+        }
+    }
+    printf("\n");
+}
+
+void prunik(Tdata *data, int radek1, int radek2) {
+    int jePrunik = 0;
+
+    printf("S");
+
+    for (int i = 0; i < data->mnoziny[radek1-2].pocet_prvku; i++) {
+        jePrunik = 0;
+        for (int j = 0; j < data->mnoziny[radek2-2].pocet_prvku; j++) {
+            if(!strcmp(data->mnoziny[radek1-2].pole[i], data->mnoziny[radek2-2].pole[j])) {
+                jePrunik = 1;
+                break;
+            }
+        }
+        if (jePrunik) {
+            printf(" %s", data->mnoziny[radek1-2].pole[i]);
+        }
+    }
+    printf("\n");
+}
+
+void rozdil(Tdata *data, int radek1, int radek2) {
+    int jeRozdil = 0;
+
+    printf("S");
+
+    for (int i = 0; i < data->mnoziny[radek1-2].pocet_prvku; i++) {
+        jeRozdil = 0;
+        for (int j = 0; j < data->mnoziny[radek2-2].pocet_prvku; j++) {
+            if(!strcmp(data->mnoziny[radek1-2].pole[i], data->mnoziny[radek2-2].pole[j])) {
+                jeRozdil = 1;
+                break;
+            }
+        }
+        if (!jeRozdil) {
+            printf(" %s", data->mnoziny[radek1-2].pole[i]);
+        }
+    }
+    printf("\n");
+}
+
+void podmnozina(Tdata *data, int radek1, int radek2) {
+    int jePodmnozina = 1;
+    int jsouPodmnoziny[data->mnoziny[radek1-2].pocet_prvku];
+
+    if (data->mnoziny[radek1-2].pocet_prvku > data->mnoziny[radek2-2].pocet_prvku) {
+        printf("false\n");
+    } else {
+
+        for (int i = 0; i < data->mnoziny[radek1-2].pocet_prvku; i++) {
+            jsouPodmnoziny[i] = 0;
+        }
+
+        for (int i = 0; i < data->mnoziny[radek1-2].pocet_prvku; i++) {
+            for (int j = 0; j < data->mnoziny[radek2-2].pocet_prvku; j++) {
+                if (!strcmp(data->mnoziny[radek1-2].pole[i], data->mnoziny[radek2-2].pole[j])) {
+                    jsouPodmnoziny[i] = 1;
+                }
+            }
+        }
+
+        for (int i = 0; i < data->mnoziny[radek1-2].pocet_prvku; i++) {
+            if (!jsouPodmnoziny[i]) {
+                jePodmnozina = 0;
+                break;
+            }
+        }
+
+        if (jePodmnozina) printf("true\n");
+        else printf("false\n");
+    }
+}
+
+void vlastni_podmnozina(Tdata *data, int radek1, int radek2) {
+    if (data->mnoziny[radek1-2].pocet_prvku >= data->mnoziny[radek2-2].pocet_prvku) {
+        printf("false\n");
+    } else {
+        podmnozina(data, radek1, radek2);
+    }
+}
+
+void rovnost(Tdata *data, int radek1, int radek2) {
+    if (data->mnoziny[radek1-2].pocet_prvku != data->mnoziny[radek2-2].pocet_prvku) {
+        printf("false\n");
+    } else {
+        podmnozina(data, radek1, radek2);
+    }
+}
 
 int main (int argc, char *argv[])
 {
@@ -204,10 +346,10 @@ int main (int argc, char *argv[])
     data.pocet_mnozin = data.pocet_relaci = 0;
     Toperace *operace;
     int pocet_operaci;
-    
-    //oteri_soubor(soubor, argv[1]);  
-      ///Ted se bude alokovat pamet jednotlivych dinamickych poli vsdy na 1 prvek
-    alloc_Operace(operace);            
+
+    //oteri_soubor(soubor, argv[1]);
+    ///Ted se bude alokovat pamet jednotlivych dinamickych poli vsdy na 1 prvek
+    alloc_Operace(operace);
     alloc_Mnozina(&(data.univerzum));
     alloc_MnozinaPismena(&(data.univerzum),0);  /****Pridat odladeni****/
     nacti_Soubor(soubor,&data,operace);
@@ -219,8 +361,8 @@ int main (int argc, char *argv[])
         tisk(data.mnoziny[i]);
         printf("\n");
     }
-    
-    
+
+
 
     //fclose(soubor);
     return 0;
