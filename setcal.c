@@ -339,6 +339,53 @@ void rovnost(Tdata *data, int radek1, int radek2) {
     }
 }
 
+void vypis_operace(Tdata *data, Toperace **mnozina_operaci, int pocet_operaci) {
+
+    for (int i = 0; i < pocet_operaci; i++) {
+        if (!strcmp(mnozina_operaci[i]->operace, "empty")) {
+            prazdna_mnozina(data, mnozina_operaci[i]->a);
+        } else if (!strcmp(mnozina_operaci[i]->operace, "card")) {
+            pocet_prvku(data, mnozina_operaci[i]->a);
+        } else if (!strcmp(mnozina_operaci[i]->operace, "complement")) {
+            doplnek(data, mnozina_operaci[i]->a);
+        } else if (!strcmp(mnozina_operaci[i]->operace, "union")) {
+            sjednoceni(data, mnozina_operaci[i]->a, mnozina_operaci[i]->b);
+        } else if (!strcmp(mnozina_operaci[i]->operace, "intersect")) {
+            prunik(data, mnozina_operaci[i]->a, mnozina_operaci[i]->b);
+        } else if (!strcmp(mnozina_operaci[i]->operace, "minus")) {
+            rozdil(data, mnozina_operaci[i]->a, mnozina_operaci[i]->b);
+        } else if (!strcmp(mnozina_operaci[i]->operace, "subseteq")) {
+            podmnozina(data, mnozina_operaci[i]->a, mnozina_operaci[i]->b);
+        } else if (!strcmp(mnozina_operaci[i]->operace, "subset")) {
+            vlastni_podmnozina(data, mnozina_operaci[i]->a, mnozina_operaci[i]->b);
+        } else if (!strcmp(mnozina_operaci[i]->operace, "equals")) {
+            rovnost(data, mnozina_operaci[i]->a, mnozina_operaci[i]->b);
+        } else if (!strcmp(mnozina_operaci[i]->operace, "reflexive")) {
+            ;
+        } else if (!strcmp(mnozina_operaci[i]->operace, "symmetric")) {
+            ;
+        } else if (!strcmp(mnozina_operaci[i]->operace, "antisymmetric")) {
+            ;
+        } else if (!strcmp(mnozina_operaci[i]->operace, "transitive")) {
+            ;
+        } else if (!strcmp(mnozina_operaci[i]->operace, "function")) {
+            ;
+        } else if (!strcmp(mnozina_operaci[i]->operace, "domain")) {
+            ;
+        } else if (!strcmp(mnozina_operaci[i]->operace, "codomain")) {
+            ;
+        } else if (!strcmp(mnozina_operaci[i]->operace, "injective")) {
+            ;
+        } else if (!strcmp(mnozina_operaci[i]->operace, "surjective")) {
+            ;
+        } else if (!strcmp(mnozina_operaci[i]->operace, "bijective")) {
+            ;
+        } else {
+            printf("Neplatna operace!");
+        }
+    }
+}
+
 int main (int argc, char *argv[])
 {
     FILE *soubor=fopen(argv[1], "r");
