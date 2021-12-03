@@ -209,7 +209,7 @@ void transitivni(Tdata *data, int radek)
 {
     char *a = data->relace[radek].relace[0].a;
     char *b = data->relace[radek].relace[0].b;
-    char *c = data->relace[radek].
+    //char *c = data->relace[radek].
 }
 
 void funkce(Tdata *data, int radek)
@@ -249,7 +249,6 @@ void nacteni_Moz(FILE *soub, Tdata *data, int radek)
     alloc_MnozinaPismena(&(data->mnoziny[radek]),r);
     data->mnoziny[radek].pole[r] = NULL;
 }
-
 
 void nacteni_Uni(FILE *soub, Tdata *data)
 {
@@ -291,18 +290,17 @@ void nacti_Rel(FILE *soub, Tdata *data, int radek)
     char a;
     int r = 0, s = 0;  //pocitadla na radky sloupce
     a = fgetc(soub);
-    printf("%d\n", __LINE__);
     while (a != '\n')
     {
-        a = fgetc(soub);
-        printf("%d\n", __LINE__);
+        a = fgetc(soub); 
         if (a == '(') ///Otevreni relace
         {
+            a = fgetc(soub);
             while (a != ')') ///Hlida ukonceni relace
             {
                 while (a != ' ') /// Nacte prvni slovo
                 {
-                    printf("%d .. %c\n",__LINE__, a);
+                    printf("%d .. %c r = %d, s = %d\n",__LINE__, a, r ,s);
                     data->relace[radek].relace[r].a[s] = a;
                     s++;
                     realloc_RelAB(data->relace[radek].relace[r].a, s+1); /****Pridat odladeni****/
@@ -314,7 +312,7 @@ void nacti_Rel(FILE *soub, Tdata *data, int radek)
                 a = fgetc(soub);
                 while (a != ')') ///Nacte druhe slovo
                 {
-                    printf("%d .. %c\n", __LINE__, a);
+                    printf("%d .. %c r = %d, s = %d\n",__LINE__, a, r ,s);
                     data->relace[radek].relace[r].b[s] = a;
                     s++;
                     realloc_RelAB(data->relace[radek].relace[r].b, s+1); /****Pridat odladeni****/
@@ -334,7 +332,7 @@ void nacti_Rel(FILE *soub, Tdata *data, int radek)
             a = fgetc(soub);
         }
     }
-    data->relace[radek].relace = NULL;
+    //data->relace[radek].relace = NULL;
 }
 
 
@@ -344,11 +342,11 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
     int r = 0; //pocitadla na radky sloupce
     while((a = fgetc(soub)) != EOF)
     {
-        fgetc(soub);        //Po uvozovacim znaku U/C/R/S je mezera, timto ji preskocim
+               //Po uvozovacim znaku U/C/R/S je mezera, timto ji preskocim
         switch (a)
         {
-<<<<<<< HEAD
-        case 'U': //nactitanni jednotlivych slov univerza
+        case 'U': //nactitanni jednotlivych slov univerza\
+            fgetc(soub); 
             alloc_Mnozina(&(data->univerzum));
             alloc_MnozinaPismena(&(data->univerzum),0);
             nacteni_Uni(soub, data);
@@ -356,6 +354,7 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
             break;
         
         case 'S':  //nactitanni jednotlivych slov mnozin
+            fgetc(soub); 
             alloc_Mnozina(&(data->mnoziny[r]));
             alloc_MnozinaPismena(&(data->mnoziny[r]),0);
             nacteni_Moz(soub,data,r);
@@ -363,11 +362,8 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
             break;
 
         case 'R': //nactitanni jednotlivych relaci
-            printf("%d\n", alloc_Relace(&(data->relace[r])));
-            printf("%d\n", alloc_RelAB(&(data->relace[r].relace[0])));
-            //alloc_Relace(&(data->relace[r]));
-            //alloc_RelAB(data->relace[r].relace[0].a);
-            //alloc_RelAB(data->relace[r].relace[0].b);
+            alloc_Relace(&(data->relace[r]));
+            alloc_RelAB(&(data->relace[r].relace[0]));
             nacti_Rel(soub, data, r);
             r++;
             break;
@@ -376,27 +372,6 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
             break;
         default:
             break;
-=======
-            case 'U': //nactitanni jednotlivych slov univerza
-                nacteni_Uni(soub, data);
-                r++;
-                break;
-
-            case 'S':  //nactitanni jednotlivych slov mnozin
-                alloc_Mnozina(&(data->mnoziny[r]));
-                alloc_MnozinaPismena(&(data->mnoziny[r]),0);
-                nacteni_Moz(soub,data,r);
-                data->pocet_mnozin = r++;
-                break;
-
-            case 'R': //nactitanni jednotlivych relaci
-                break;
-
-            case 'C': //nactitanni jednotlivych operaci
-                break;
-            default:
-                break;
->>>>>>> 7ade6889f941a2e5326a6b2e30c318cb884be1c1
         }
     }
     data->pocet_mnozin = r;
@@ -408,11 +383,11 @@ void tisk (Tmnozina a)
     for(int i = 0; i <a.pocet_prvku; printf("%s ", a.pole[i++])){}
 }
 
-<<<<<<< HEAD
 void tiskR (TmnozinaRelaci a)
 {
-    for(int i = 0; i <a.pocet; printf("(%s, %s) ", a.relace[i].a,a.relace[i++].b)){}
-=======
+    for(int i = 0; i <a.pocet; i++){ printf("(%s, %s) ", a.relace[i].a,a.relace[i].b); }
+}
+
 void prazdna_mnozina(Tdata *data, int radek) {
     if(data->mnoziny[radek-2].pocet_prvku == 0) {
         printf("true\n");
@@ -601,7 +576,6 @@ void vypis_operace(Tdata *data, Toperace **mnozina_operaci, int pocet_operaci) {
             printf("Neplatna operace!");
         }
     }
->>>>>>> 7ade6889f941a2e5326a6b2e30c318cb884be1c1
 }
 
 int main (int argc, char *argv[])
@@ -611,39 +585,25 @@ int main (int argc, char *argv[])
     data.pocet_mnozin = data.pocet_relaci = 0;
     Toperace *operace;
     int pocet_operaci;
-<<<<<<< HEAD
     //oteri_soubor(soubor, argv[1]);  
       ///Ted se bude alokovat pamet jednotlivych dinamickych poli vsdy na 1 prvek
     alloc_Operace(operace);              /****Pridat odladeni****/
-=======
-
-    //oteri_soubor(soubor, argv[1]);
-    ///Ted se bude alokovat pamet jednotlivych dinamickych poli vsdy na 1 prvek
-    alloc_Operace(operace);
-    alloc_Mnozina(&(data.univerzum));
-    alloc_MnozinaPismena(&(data.univerzum),0);  /****Pridat odladeni****/
->>>>>>> 7ade6889f941a2e5326a6b2e30c318cb884be1c1
     nacti_Soubor(soubor,&data,operace);
     printf("\n");
     tisk(data.univerzum);
     printf("\n");
-    for (int i = 0; i < data.pocet_mnozin+3; i++)
+    for (int i = 0; i < data.pocet_mnozin; i++)
     {
         tisk(data.mnoziny[i]);
         printf("\n");
     }
-<<<<<<< HEAD
     
-    for ( int i = 0; i < data.pocet_mnozin+3; i++)
+    for ( int i = 2; i < data.pocet_mnozin; i++)
     {
         tiskR(data.relace[i]);
         printf("\n");
     }
     
-=======
-
-
->>>>>>> 7ade6889f941a2e5326a6b2e30c318cb884be1c1
 
     //fclose(soubor);
     return 0;
