@@ -1,6 +1,5 @@
-U kolo uvoz pes kobyla
-S holosup kolos med den
-S kaz vaz daz haz daz sad das der die
-R (hej rup) (kocka pes) (kral kralovna)
-R (nemocnice pacient) (koza roza)
-
+U a b c x y z
+S a b c x
+S x y z
+C intersect 2 3
+C minus 2 3

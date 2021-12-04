@@ -21,8 +21,8 @@ typedef struct {
 typedef struct {
     Tmnozina univerzum;
     Tmnozina mnoziny[1000];
-    TmnozinaRelaci relace[1000];
-    int pocet_mnozin, pocet_relaci;
+    TmnozinaRelaci relace[1000]; 
+    int pocet;
 }Tdata;
 
 typedef struct {
@@ -33,18 +33,27 @@ typedef struct {
 
 void tiskR (TmnozinaRelaci a);
 
-int oteri_soubor(FILE *s, char *nazev)
+int oteri_soubor(FILE **s, char *nazev)
 {
-    s = fopen(nazev, "r");
+    *s = fopen(nazev, "r");
     if( s == NULL) return 0;
     return 1;
 }
 
+void chybaOp()
+{
+    printf("V souboru na radku s operacemi se vyskytla chyba v zadani operace.\n");
+}
+
+void chybaRadek(int a)
+{
+    printf("V souboru na %d. radku se vyskytla chyba v zadani operace.\n", a);
+}
 
 //Alokace operaci
-int alloc_Operace(Toperace *a)
+int alloc_Operace(Toperace **a)
 {
-    a = (Toperace*)malloc(sizeof(Toperace));
+    *a = (Toperace*)malloc(sizeof(Toperace));
     if (a == NULL) return 0;
     return 1;
 }
@@ -53,6 +62,20 @@ int realloc_Operace(Toperace *a, int pocet)
 {
     a = (Toperace*)realloc(a, pocet*(sizeof(Toperace)));
     if (a == NULL) return 0;
+    return 1;
+}
+
+int alloc_OP(char **s)
+{
+    *s = (char*)malloc(sizeof(char));
+    if (s == NULL) return 0;
+    return 1;
+}
+
+int realloc_OP(char *s,int pocet)
+{
+    s = (char*)realloc(s, pocet*(sizeof(char)));
+    if (s == NULL) return 0;
     return 1;
 }
 
@@ -188,10 +211,10 @@ void symetricka(Tdata *data, int radek)
     
     if (symPom(data, radek))
     {
-        pT;
+        pT();
         return;
     }
-    pF;
+    pF();
 }
 
 void antisymetricka(Tdata *data, int radek)
@@ -199,23 +222,12 @@ void antisymetricka(Tdata *data, int radek)
     
     if (symPom(data, radek))
     {
-        pF;
+        pF();
         return;
     }
-    pT;
+    pT();
 }
 
-void transitivni(Tdata *data, int radek)
-{
-    char *a = data->relace[radek].relace[0].a;
-    char *b = data->relace[radek].relace[0].b;
-    //char *c = data->relace[radek].
-}
-
-void funkce(Tdata *data, int radek)
-{
-    
-}
 
 void nacteni_Moz(FILE *soub, Tdata *data, int radek)
 {
@@ -300,19 +312,16 @@ void nacti_Rel(FILE *soub, Tdata *data, int radek)
             {
                 while (a != ' ') /// Nacte prvni slovo
                 {
-                    printf("%d .. %c r = %d, s = %d\n",__LINE__, a, r ,s);
                     data->relace[radek].relace[r].a[s] = a;
                     s++;
                     realloc_RelAB(data->relace[radek].relace[r].a, s+1); /****Pridat odladeni****/
                     a = fgetc(soub);
                 }
-                printf("%d\n", __LINE__);
                 data->relace[radek].relace[r].a[s] = '\0'; //kazde pole je ukonceno '\0'
                 s = 0;
                 a = fgetc(soub);
                 while (a != ')') ///Nacte druhe slovo
                 {
-                    printf("%d .. %c r = %d, s = %d\n",__LINE__, a, r ,s);
                     data->relace[radek].relace[r].b[s] = a;
                     s++;
                     realloc_RelAB(data->relace[radek].relace[r].b, s+1); /****Pridat odladeni****/
@@ -326,8 +335,7 @@ void nacti_Rel(FILE *soub, Tdata *data, int radek)
             }
             r++;
             data->relace[radek].pocet = r;
-            realloc_Relace(&(data->relace[radek]), r+1);
-            printf("%d\n", __LINE__);  ///Priprava ppameti pro novou relaci
+            realloc_Relace(&(data->relace[radek]), r+1);///Priprava ppameti pro novou relaci
             alloc_RelAB(&(data->relace[radek].relace[r]));
             a = fgetc(soub);
         }
@@ -335,9 +343,61 @@ void nacti_Rel(FILE *soub, Tdata *data, int radek)
     //data->relace[radek].relace = NULL;
 }
 
-
-int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
+int nacteni_cisla(FILE *soub)
 {
+    char a[]= {fgetc(soub)};
+    int b = atoi(a);
+    if (b == 0) return -1;
+    return b;
+}
+
+int nacti_Ope(FILE *soub, Toperace *operace,  int radek)
+{
+    char a;
+    int r = 0;  //pocitadla na radky sloupce
+    
+    a = fgetc(soub);
+    while (a != ' ') /// Nacte prvni slovo
+    {
+        printf("%d ..%c\n",__LINE__, a);
+        operace[radek].operace[r++] = a;
+        realloc_OP(operace[radek].operace, r+1);
+        a = fgetc(soub);
+    }
+    if(a == ' ') operace[radek].a = nacteni_cisla(soub);
+    if(operace[radek].a == -1) {
+        chybaOp(); 
+        return 0;
+    }
+    a = fgetc(soub);
+    if(a == ' ') operace[radek].b = nacteni_cisla(soub);
+    if(operace[radek].b == -1){
+        chybaOp(); 
+        return 0;
+    } 
+    return 1;
+}
+int nacti_OpePom(FILE *soub, Toperace *operace)
+{
+    char a;
+    //a = fgetc(soub);
+    int i;
+    for (i = 0; a != EOF; i++)
+    {   a = fgetc(soub);
+        if (a == 'C')a = fgetc(soub);
+        printf("'%c'\n", a);
+        alloc_OP(&(operace[i].operace));
+        if (nacti_Ope(soub, operace, i) == 0) return -1;
+        realloc_Operace(operace, i+2);
+        a = fgetc(soub);
+    }
+    return i;
+    
+}
+
+int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace, int *pocet_operaci)
+{
+
     char a;
     int r = 0; //pocitadla na radky sloupce
     while((a = fgetc(soub)) != EOF)
@@ -345,7 +405,7 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
                //Po uvozovacim znaku U/C/R/S je mezera, timto ji preskocim
         switch (a)
         {
-        case 'U': //nactitanni jednotlivych slov univerza\
+        case 'U': //nactitanni jednotlivych slov univerza
             fgetc(soub); 
             alloc_Mnozina(&(data->univerzum));
             alloc_MnozinaPismena(&(data->univerzum),0);
@@ -369,13 +429,19 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace)
             break;
 
         case 'C': //nactitanni jednotlivych operaci
+            pT();
+            alloc_Operace(&operace);
+            *pocet_operaci = nacti_OpePom(soub, operace);
+            if(*pocet_operaci == -1) return -1;
             break;
         default:
+            chybaRadek(r);
+            return -1;
             break;
         }
     }
-    data->pocet_mnozin = r;
-    return 0;
+    data->pocet = r;
+    return 1;
 }
 
 void tisk (Tmnozina a)
@@ -580,31 +646,21 @@ void vypis_operace(Tdata *data, Toperace **mnozina_operaci, int pocet_operaci) {
 
 int main (int argc, char *argv[])
 {
+    argc = 0; // potrebuji se zbavit erroru unused argc xD
+
     FILE *soubor=fopen(argv[1], "r");
     Tdata data;
-    data.pocet_mnozin = data.pocet_relaci = 0;
+    //data.mnoziny[1]. = (Tmnozina)NULL;
+    data.pocet = argc;
     Toperace *operace;
     int pocet_operaci;
     //oteri_soubor(soubor, argv[1]);  
-      ///Ted se bude alokovat pamet jednotlivych dinamickych poli vsdy na 1 prvek
-    alloc_Operace(operace);              /****Pridat odladeni****/
-    nacti_Soubor(soubor,&data,operace);
+    alloc_Operace(&operace);         
+    nacti_Soubor(soubor,&data,operace, &pocet_operaci);
     printf("\n");
     tisk(data.univerzum);
     printf("\n");
-    for (int i = 0; i < data.pocet_mnozin; i++)
-    {
-        tisk(data.mnoziny[i]);
-        printf("\n");
-    }
     
-    for ( int i = 2; i < data.pocet_mnozin; i++)
-    {
-        tiskR(data.relace[i]);
-        printf("\n");
-    }
-    
-
     //fclose(soubor);
     return 0;
 }
