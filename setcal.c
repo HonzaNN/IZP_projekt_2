@@ -546,6 +546,7 @@ void rovnost(Tdata *data, int radek1, int radek2) {
     }
 }
 
+// Projede vsechny operace a podle toho vola funkce odpovidajici temto operacim
 void vypis_operace(Tdata *data, Toperace **mnozina_operaci, int pocet_operaci) {
 
     for (int i = 0; i < pocet_operaci; i++) {
