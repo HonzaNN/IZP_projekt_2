@@ -365,11 +365,16 @@ int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
     {
         printf("%dAA\n", __LINE__);
         c = (int)strtol(pom, &text, 10);
-        if(strlen(text) != 0)
+        printf("delka text|%ld||\n", strlen(text));
+        if((strlen(text) > 1))
         {
-            printf("%d\n", __LINE__);
+            printf("//%s//\n", text);
             chybaOp();
             return -1;
+        }
+        if(text[0]=='\n')
+        {
+            pom[0]=text[0];
         }
         b = b*10+c;
         pom[0] = fgetc(soub);
@@ -390,7 +395,8 @@ int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
     {
         printf("%d\n", __LINE__);
         c = (int)strtol(pom, &text, 10);
-        if((strlen(text)!= 0))
+        printf("delka text|%ld||\n", strlen(text));
+        if((strlen(text) > 1))
         {
             printf("//%s//\n", text);
             chybaOp();
