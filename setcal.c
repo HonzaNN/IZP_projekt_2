@@ -390,15 +390,15 @@ int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
     {
         printf("%d\n", __LINE__);
         c = (int)strtol(pom, &text, 10);
-        if((strlen(text) != 0)&&(text[0]!='\n'))
+        if((strlen(text)!= 0))
         {
-            printf("%d\n", __LINE__);
+            printf("//%s//\n", text);
             chybaOp();
             return -1;
         }
         if(text[0]=='\n')
         {
-            pom[0]=text[0]
+            pom[0]=text[0];
         }
         b = b*10+c;
         pom[0] = fgetc(soub);
