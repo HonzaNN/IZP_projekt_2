@@ -29,6 +29,7 @@ typedef struct {
     char *operace;
     int a;
     int b;
+    int c;
 }Toperace;
 
 typedef struct obal{
@@ -366,24 +367,22 @@ int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
     int b = 0, c;
     while (pom[0] != ' ')  //Nacte prvni cislo
     {
+        printf("%d .. |%s|\n", __LINE__, pom);
         c = (int)strtol(pom, &text, 10);
+        b = b*10+c;
         if((strlen(text) > 1))
         {
             chybaOp();
             return -1;
         }
-        if(text[0]=='\n')
-        {
-            pom[0]=text[0];
-        }
-        b = b*10+c;
+        printf("%d .. |%s|\n", __LINE__, text);
         pom[0] = fgetc(soub);
-        if(pom[0] == EOF) {
-            operace[radek].a = a;
-            return 0;
-        }
         if(pom[0] == '\n') {
-            operace[radek].a = a;
+            operace[radek].a = b;
+            return 1;
+        }
+        if(pom[0] == EOF) {
+            operace[radek].a = b;
             return 0;
         }
     }
@@ -391,27 +390,54 @@ int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
     operace[radek].a = b;
     b = 0;
     pom[0] = fgetc(soub);
-    while (pom[0] != '\n') //Nacte druhe cislo  pokud je
+    printf("%d\n", __LINE__);
+    while (pom[0] != ' ')  //Nacte prvni cislo
     {
+        printf("%d .. |%s|\n", __LINE__, pom);
         c = (int)strtol(pom, &text, 10);
+        b = b*10+c;
         if((strlen(text) > 1))
         {
             chybaOp();
             return -1;
         }
-        if(text[0]=='\n')
-        {
-            pom[0]=text[0];
-            break;
-        }
-        b = b*10+c;
+        printf("%d .. |%s|\n", __LINE__, text);
         pom[0] = fgetc(soub);
+        if(pom[0] == '\n') {
+            operace[radek].b = b;
+            return 1;
+        }
         if(pom[0] == EOF) {
             operace[radek].b = b;
             return 0;
         }
     }
     operace[radek].b = b;
+    b = 0;
+    pom[0] = fgetc(soub);
+    printf("%d\n", __LINE__);
+    while (pom[0] != ' ')  //Nacte treti cislo
+    {
+        printf("%d .. |%s|\n", __LINE__, pom);
+        c = (int)strtol(pom, &text, 10);
+        b = b*10+c;
+        if((strlen(text) > 1))
+        {
+            chybaOp();
+            return -1;
+        }
+        printf("%d .. |%s|\n", __LINE__, text);
+        pom[0] = fgetc(soub);
+        if(pom[0] == '\n') {
+            operace[radek].c = b;
+            return 1;
+        }
+        if(pom[0] == EOF) {
+            operace[radek].c = b;
+            return 0;
+        }
+    }
+    operace[radek].c = b;
     return 1;
 }
 
@@ -430,7 +456,7 @@ int nacti_OpePom(FILE *soub, Tobal *obal)
         {
             for (int j = 0; j < i+1; j++) 
             {
-                printf(" %s %d %d\n", obal->operace[j].operace, obal->operace[j].a, obal->operace[j].b);
+                printf(" %s %d %d %d\n", obal->operace[j].operace, obal->operace[j].a, obal->operace[j].b, obal->operace[j].c);
             }
             printf("%p|KONEC|\n", obal->operace);
             return i+1;
@@ -468,10 +494,15 @@ int nacti_Soubor(FILE *soub, Tdata *data, Tobal *obal, int *pocet_operaci)
             break;
         
         case 'S':  //nactitanni jednotlivych slov mnozin
-            fgetc(soub); 
             alloc_Mnozina(&(data->mnoziny[r]));
             alloc_MnozinaPismena(&(data->mnoziny[r]),0);
-            nacteni_Moz(soub,data,r);
+            if (fgetc(soub)!='\n'){ 
+                nacteni_Moz(soub,data,r);
+                
+            }
+            else{
+                data->mnoziny[r].pocet_prvku=0;
+            }
             r++;
             data->pocet = r;
             break;
@@ -489,12 +520,7 @@ int nacti_Soubor(FILE *soub, Tdata *data, Tobal *obal, int *pocet_operaci)
             printf("%p|PRED|\n", obal->operace);
             alloc_OP(&(obal->operace[0].operace));
             g = nacti_OpePom(soub, obal);
-
             printf("%p|PO|\n", obal->operace);
-            printf("A sem uz se posle prazdne pole operaci\n");
-            printf("kontrola v souboru %s\n", obal->operace[4].operace);
-            printf("lf %ld\n", sizeof(obal->operace[2]).operace);
-            printf("%d", __LINE__);
             *pocet_operaci = g;
             if(*pocet_operaci == -1) return -1;
             return 1;
@@ -742,16 +768,17 @@ int main (int argc, char *argv[])
     tiskM(data.univerzum);
     printf("\n");
     
-    for (int i = 0; i < data.pocet; i++)
+    for (int i = 1; i < data.pocet; i++)
     {
         tiskM(data.mnoziny[i]);
+        printf("  %d\n", data.mnoziny[i].pocet_prvku);
         printf("\n");
     }
-
+    printf("\n");
     printf("%d\n", pocet_operaci);
     for (int i = 0; i < pocet_operaci; i++)
     {
-        printf("%s %d %d\n", obal.operace[i].operace, obal.operace[i].a, obal.operace[i].b);
+        printf("%s %d %d %d\n", obal.operace[i].operace, obal.operace[i].a, obal.operace[i].b, obal.operace[i].c);
         //printf("%d\n", operace[i].a);
     }
     printf("\n");printf("\n");printf("\n");
