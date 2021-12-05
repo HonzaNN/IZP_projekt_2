@@ -31,6 +31,11 @@ typedef struct {
     int b;
 }Toperace;
 
+typedef struct obal{
+    Toperace *operace;
+}Tobal;
+
+
 void tiskR (TmnozinaRelaci a);
 
 int oteri_soubor(FILE **s, char *nazev)
@@ -354,8 +359,6 @@ int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
         operace[radek].operace[r] = a;
         r++;
         realloc_OP(&(operace[radek].operace), r+1);
-        printf("%s\n", operace[radek].operace);
-        printf("%d..%c\n", __LINE__, a);
         a = fgetc(soub);
     }
 
@@ -363,12 +366,9 @@ int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
     int b = 0, c;
     while (pom[0] != ' ')  //Nacte prvni cislo
     {
-        printf("%dAA\n", __LINE__);
         c = (int)strtol(pom, &text, 10);
-        printf("delka text|%ld||\n", strlen(text));
         if((strlen(text) > 1))
         {
-            printf("//%s//\n", text);
             chybaOp();
             return -1;
         }
@@ -393,18 +393,16 @@ int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
     pom[0] = fgetc(soub);
     while (pom[0] != '\n') //Nacte druhe cislo  pokud je
     {
-        printf("%d\n", __LINE__);
         c = (int)strtol(pom, &text, 10);
-        printf("delka text|%ld||\n", strlen(text));
         if((strlen(text) > 1))
         {
-            printf("//%s//\n", text);
             chybaOp();
             return -1;
         }
         if(text[0]=='\n')
         {
             pom[0]=text[0];
+            break;
         }
         b = b*10+c;
         pom[0] = fgetc(soub);
@@ -417,7 +415,7 @@ int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
     return 1;
 }
 
-int nacti_OpePom(FILE *soub, Toperace operace[])
+int nacti_OpePom(FILE *soub, Tobal *obal)
 {
     char a = ' ';
     int i, pom;
@@ -425,33 +423,32 @@ int nacti_OpePom(FILE *soub, Toperace operace[])
     for (i = 0; a != EOF; i++)
     {   a = fgetc(soub);
         if (a == 'C') a = fgetc(soub);
-        pom = nacti_Ope(soub, operace, i);
-        printf("%d\n", __LINE__);
+        pom = nacti_Ope(soub, obal->operace, i);
         //realloc_Operace(&operace, i+2);
         if( pom == -1) return -1;
         if( pom == 0) //kdy konci radkem s operaci
         {
             for (int j = 0; j < i+1; j++) 
             {
-                printf(" %s %d %d\n", operace[j].operace, operace[j].a, operace[j].b);
+                printf(" %s %d %d\n", obal->operace[j].operace, obal->operace[j].a, obal->operace[j].b);
             }
-            printf("%p|KONEC|\n", operace);
+            printf("%p|KONEC|\n", obal->operace);
             return i+1;
         }
-        //realloc_Operace(&operace, i+2);
-        alloc_OP(&(operace[i+1].operace));
+        realloc_Operace(&(obal->operace), i+2);
+        alloc_OP(&(obal->operace[i+1].operace));
         a = fgetc(soub);
     }
     for (int j = 0; j < i; j++) //kdyz soubor konci prazdnym radkem
     {
-        printf(" %s %d %d\n", operace[j].operace, operace[j].a, operace[j].b);
+        printf(" %s %d %d\n", obal->operace[j].operace, obal->operace[j].a, obal->operace[j].b);
     }
-    printf("%p|KONEC|\n", operace);
+    printf("%p|KONEC|\n", obal->operace);
     return i;
     
 }
 
-int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace, int *pocet_operaci)
+int nacti_Soubor(FILE *soub, Tdata *data, Tobal *obal, int *pocet_operaci)
 {
 
     char a;
@@ -489,13 +486,14 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace, int *pocet_operaci)
 
         case 'C': //nactitanni jednotlivych operaci
             //alloc_Operace(&operace);
-            printf("%p|PRED|\n", operace);
-            alloc_OP(&(operace[0].operace));
-            g = nacti_OpePom(soub, operace);
-            printf("%p|PO|\n", operace);
+            printf("%p|PRED|\n", obal->operace);
+            alloc_OP(&(obal->operace[0].operace));
+            g = nacti_OpePom(soub, obal);
+
+            printf("%p|PO|\n", obal->operace);
             printf("A sem uz se posle prazdne pole operaci\n");
-            printf("kontrola v souboru %s\n", operace[4].operace);
-            printf("lf %ld\n", sizeof(operace[2]).operace);
+            printf("kontrola v souboru %s\n", obal->operace[4].operace);
+            printf("lf %ld\n", sizeof(obal->operace[2]).operace);
             printf("%d", __LINE__);
             *pocet_operaci = g;
             if(*pocet_operaci == -1) return -1;
@@ -734,12 +732,12 @@ int main (int argc, char *argv[])
     FILE *soubor=fopen(argv[1], "r");
     Tdata data;
     data.pocet = argc;
-    Toperace operace[50];
+    Tobal obal;
     int pocet_operaci;
     //oteri_soubor(soubor, argv[1]);  
-    //alloc_Operace(&operace);
+    alloc_Operace(&(obal.operace));
     //printf("%d\n", alloc_OP(&(operace[0].operace)));      
-    nacti_Soubor(soubor,&data, operace, &pocet_operaci);
+    nacti_Soubor(soubor,&data, &obal, &pocet_operaci);
     printf("\n");
     tiskM(data.univerzum);
     printf("\n");
@@ -753,11 +751,11 @@ int main (int argc, char *argv[])
     printf("%d\n", pocet_operaci);
     for (int i = 0; i < pocet_operaci; i++)
     {
-        printf("%s %d %d\n", operace[i].operace, operace[i].a, operace[i].b);
+        printf("%s %d %d\n", obal.operace[i].operace, obal.operace[i].a, obal.operace[i].b);
         //printf("%d\n", operace[i].a);
     }
     printf("\n");printf("\n");printf("\n");
-    vypis_operace(&data ,operace, pocet_operaci);
+    vypis_operace(&data ,obal.operace, pocet_operaci);
     //fclose(soubor);
     return 0;
 }
