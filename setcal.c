@@ -354,6 +354,8 @@ int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
         operace[radek].operace[r] = a;
         r++;
         realloc_OP(&(operace[radek].operace), r+1);
+        printf("%s\n", operace[radek].operace);
+        printf("%d..%c\n", __LINE__, a);
         a = fgetc(soub);
     }
 
@@ -361,11 +363,18 @@ int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
     int b = 0, c;
     while (pom[0] != ' ')  //Nacte prvni cislo
     {
+        printf("%dAA\n", __LINE__);
         c = (int)strtol(pom, &text, 10);
-        if(strlen(text) != 0)
+        printf("delka text|%ld||\n", strlen(text));
+        if((strlen(text) > 1))
         {
+            printf("//%s//\n", text);
             chybaOp();
             return -1;
+        }
+        if(text[0]=='\n')
+        {
+            pom[0]=text[0];
         }
         b = b*10+c;
         pom[0] = fgetc(soub);
@@ -384,11 +393,18 @@ int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
     pom[0] = fgetc(soub);
     while (pom[0] != '\n') //Nacte druhe cislo  pokud je
     {
+        printf("%d\n", __LINE__);
         c = (int)strtol(pom, &text, 10);
-        if(strlen(text) != 0)
+        printf("delka text|%ld||\n", strlen(text));
+        if((strlen(text) > 1))
         {
+            printf("//%s//\n", text);
             chybaOp();
             return -1;
+        }
+        if(text[0]=='\n')
+        {
+            pom[0]=text[0];
         }
         b = b*10+c;
         pom[0] = fgetc(soub);
@@ -410,6 +426,7 @@ int nacti_OpePom(FILE *soub, Toperace operace[])
     {   a = fgetc(soub);
         if (a == 'C') a = fgetc(soub);
         pom = nacti_Ope(soub, operace, i);
+        printf("%d\n", __LINE__);
         //realloc_Operace(&operace, i+2);
         if( pom == -1) return -1;
         if( pom == 0) //kdy konci radkem s operaci
