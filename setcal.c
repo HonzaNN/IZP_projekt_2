@@ -354,6 +354,7 @@ int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
         operace[radek].operace[r] = a;
         r++;
         realloc_OP(&(operace[radek].operace), r+1);
+        printf("%s\n", operace[radek].operace);
         a = fgetc(soub);
     }
 
