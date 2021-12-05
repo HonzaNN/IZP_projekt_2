@@ -344,7 +344,7 @@ void nacti_Rel(FILE *soub, Tdata *data, int radek)
 }
 
 
-int nacti_Ope(FILE *soub, Toperace *operace,  int radek)
+int nacti_Ope(FILE *soub, Toperace operace[],  int radek)
 {
     char a = 'z';
     int r = 0;  //pocitadla na radky sloupce
@@ -354,7 +354,6 @@ int nacti_Ope(FILE *soub, Toperace *operace,  int radek)
         operace[radek].operace[r] = a;
         r++;
         realloc_OP(&(operace[radek].operace), r+1);
-        operace[radek].operace[r] = '\0';
         a = fgetc(soub);
     }
 
@@ -370,6 +369,14 @@ int nacti_Ope(FILE *soub, Toperace *operace,  int radek)
         }
         b = b*10+c;
         pom[0] = fgetc(soub);
+        if(pom[0] == EOF) {
+            operace[radek].a = a;
+            return 0;
+        }
+        if(pom[0] == '\n') {
+            operace[radek].a = a;
+            return 0;
+        }
     }
 
     operace[radek].a = b;
@@ -398,10 +405,10 @@ int nacti_OpePom(FILE *soub, Toperace operace[])
 {
     char a = ' ';
     int i, pom;
+    
     for (i = 0; a != EOF; i++)
     {   a = fgetc(soub);
         if (a == 'C') a = fgetc(soub);
-        alloc_OP(&(operace[i].operace));
         pom = nacti_Ope(soub, operace, i);
         //realloc_Operace(&operace, i+2);
         if( pom == -1) return -1;
@@ -409,20 +416,21 @@ int nacti_OpePom(FILE *soub, Toperace operace[])
         {
             for (int j = 0; j < i+1; j++) 
             {
-                printf("%d\n", __LINE__);
                 printf(" %s %d %d\n", operace[j].operace, operace[j].a, operace[j].b);
             }
-            return i+2;
+            printf("%p|KONEC|\n", operace);
+            return i+1;
         }
-        realloc_Operace(&operace, i+2);
+        //realloc_Operace(&operace, i+2);
+        alloc_OP(&(operace[i+1].operace));
         a = fgetc(soub);
     }
     for (int j = 0; j < i; j++) //kdyz soubor konci prazdnym radkem
     {
-        printf("%d\n", __LINE__);
         printf(" %s %d %d\n", operace[j].operace, operace[j].a, operace[j].b);
     }
-    return i+1;
+    printf("%p|KONEC|\n", operace);
+    return i;
     
 }
 
@@ -463,10 +471,14 @@ int nacti_Soubor(FILE *soub, Tdata *data, Toperace *operace, int *pocet_operaci)
             break;
 
         case 'C': //nactitanni jednotlivych operaci
-            alloc_Operace(&operace);
+            //alloc_Operace(&operace);
+            printf("%p|PRED|\n", operace);
+            alloc_OP(&(operace[0].operace));
             g = nacti_OpePom(soub, operace);
+            printf("%p|PO|\n", operace);
             printf("A sem uz se posle prazdne pole operaci\n");
-            printf("kontrola v souboru %s\n", operace[0].operace);
+            printf("kontrola v souboru %s\n", operace[4].operace);
+            printf("lf %ld\n", sizeof(operace[2]).operace);
             printf("%d", __LINE__);
             *pocet_operaci = g;
             if(*pocet_operaci == -1) return -1;
@@ -651,46 +663,46 @@ void rovnost(Tdata *data, int radek1, int radek2) {
     }
 }
 
-void vypis_operace(Tdata *data, Toperace **mnozina_operaci, int pocet_operaci) {
+void vypis_operace(Tdata *data, Toperace *mnozina_operaci, int pocet_operaci) {
 
     for (int i = 0; i < pocet_operaci; i++) {
-        if (!strcmp(mnozina_operaci[i]->operace, "empty")) {
-            prazdna_mnozina(data, mnozina_operaci[i]->a);
-        } else if (!strcmp(mnozina_operaci[i]->operace, "card")) {
-            pocet_prvku(data, mnozina_operaci[i]->a);
-        } else if (!strcmp(mnozina_operaci[i]->operace, "complement")) {
-            doplnek(data, mnozina_operaci[i]->a);
-        } else if (!strcmp(mnozina_operaci[i]->operace, "union")) {
-            sjednoceni(data, mnozina_operaci[i]->a, mnozina_operaci[i]->b);
-        } else if (!strcmp(mnozina_operaci[i]->operace, "intersect")) {
-            prunik(data, mnozina_operaci[i]->a, mnozina_operaci[i]->b);
-        } else if (!strcmp(mnozina_operaci[i]->operace, "minus")) {
-            rozdil(data, mnozina_operaci[i]->a, mnozina_operaci[i]->b);
-        } else if (!strcmp(mnozina_operaci[i]->operace, "subseteq")) {
-            podmnozina(data, mnozina_operaci[i]->a, mnozina_operaci[i]->b);
-        } else if (!strcmp(mnozina_operaci[i]->operace, "subset")) {
-            vlastni_podmnozina(data, mnozina_operaci[i]->a, mnozina_operaci[i]->b);
-        } else if (!strcmp(mnozina_operaci[i]->operace, "equals")) {
-            rovnost(data, mnozina_operaci[i]->a, mnozina_operaci[i]->b);
-        } else if (!strcmp(mnozina_operaci[i]->operace, "reflexive")) {
+        if (!strcmp(mnozina_operaci[i].operace, "empty")) {
+            prazdna_mnozina(data, mnozina_operaci[i].a);
+        } else if (!strcmp(mnozina_operaci[i].operace, "card")) {
+            pocet_prvku(data, mnozina_operaci[i].a);
+        } else if (!strcmp(mnozina_operaci[i].operace, "complement")) {
+            doplnek(data, mnozina_operaci[i].a);
+        } else if (!strcmp(mnozina_operaci[i].operace, "union")) {
+            sjednoceni(data, mnozina_operaci[i].a, mnozina_operaci[i].b);
+        } else if (!strcmp(mnozina_operaci[i].operace, "intersect")) {
+            prunik(data, mnozina_operaci[i].a, mnozina_operaci[i].b);
+        } else if (!strcmp(mnozina_operaci[i].operace, "minus")) {
+            rozdil(data, mnozina_operaci[i].a, mnozina_operaci[i].b);
+        } else if (!strcmp(mnozina_operaci[i].operace, "subseteq")) {
+            podmnozina(data, mnozina_operaci[i].a, mnozina_operaci[i].b);
+        } else if (!strcmp(mnozina_operaci[i].operace, "subset")) {
+            vlastni_podmnozina(data, mnozina_operaci[i].a, mnozina_operaci[i].b);
+        } else if (!strcmp(mnozina_operaci[i].operace, "equals")) {
+            rovnost(data, mnozina_operaci[i].a, mnozina_operaci[i].b);
+        } else if (!strcmp(mnozina_operaci[i].operace, "reflexive")) {
             ;
-        } else if (!strcmp(mnozina_operaci[i]->operace, "symmetric")) {
+        } else if (!strcmp(mnozina_operaci[i].operace, "symmetric")) {
             ;
-        } else if (!strcmp(mnozina_operaci[i]->operace, "antisymmetric")) {
+        } else if (!strcmp(mnozina_operaci[i].operace, "antisymmetric")) {
             ;
-        } else if (!strcmp(mnozina_operaci[i]->operace, "transitive")) {
+        } else if (!strcmp(mnozina_operaci[i].operace, "transitive")) {
             ;
-        } else if (!strcmp(mnozina_operaci[i]->operace, "function")) {
+        } else if (!strcmp(mnozina_operaci[i].operace, "function")) {
             ;
-        } else if (!strcmp(mnozina_operaci[i]->operace, "domain")) {
+        } else if (!strcmp(mnozina_operaci[i].operace, "domain")) {
             ;
-        } else if (!strcmp(mnozina_operaci[i]->operace, "codomain")) {
+        } else if (!strcmp(mnozina_operaci[i].operace, "codomain")) {
             ;
-        } else if (!strcmp(mnozina_operaci[i]->operace, "injective")) {
+        } else if (!strcmp(mnozina_operaci[i].operace, "injective")) {
             ;
-        } else if (!strcmp(mnozina_operaci[i]->operace, "surjective")) {
+        } else if (!strcmp(mnozina_operaci[i].operace, "surjective")) {
             ;
-        } else if (!strcmp(mnozina_operaci[i]->operace, "bijective")) {
+        } else if (!strcmp(mnozina_operaci[i].operace, "bijective")) {
             ;
         } else {
             printf("Neplatna operace!");
@@ -705,9 +717,11 @@ int main (int argc, char *argv[])
     FILE *soubor=fopen(argv[1], "r");
     Tdata data;
     data.pocet = argc;
-    Toperace *operace;
+    Toperace operace[50];
     int pocet_operaci;
-    //oteri_soubor(soubor, argv[1]);        
+    //oteri_soubor(soubor, argv[1]);  
+    //alloc_Operace(&operace);
+    //printf("%d\n", alloc_OP(&(operace[0].operace)));      
     nacti_Soubor(soubor,&data, operace, &pocet_operaci);
     printf("\n");
     tiskM(data.univerzum);
@@ -718,21 +732,15 @@ int main (int argc, char *argv[])
         tiskM(data.mnoziny[i]);
         printf("\n");
     }
-    
-    /*for (int i = 0; i < data.pocet; i++)
-    {
-        
-        tiskR(data.relace[i]);
-        printf("\n");
-    }*
 
     printf("%d\n", pocet_operaci);
     for (int i = 0; i < pocet_operaci; i++)
     {
         printf("%s %d %d\n", operace[i].operace, operace[i].a, operace[i].b);
         //printf("%d\n", operace[i].a);
-    }*/
-
+    }
+    printf("\n");printf("\n");printf("\n");
+    vypis_operace(&data ,operace, pocet_operaci);
     //fclose(soubor);
     return 0;
 }
