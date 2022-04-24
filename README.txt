@@ -3,7 +3,7 @@ Pridani repozitare do slozky s projektem
 git init
 git config --global user.name "........"
 git config --global user.email .............
-git remote add origin https://git.fit.vutbr.cz/xnovak3i/IZP_projekt_2.git
+git remote add origin https://github.com/HonzaNN/IZP_projekt_2.git
 
 
 Pridani souboru do repozitare
